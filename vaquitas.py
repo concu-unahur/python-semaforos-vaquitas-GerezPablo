@@ -5,6 +5,8 @@ import threading
 
 inicioPuente = 10
 largoPuente = 20
+finPuente = inicioPuente + largoPuente
+cowSemaph = threading.Semaphore(1)
 
 class Vaca(threading.Thread):
   def __init__(self):
@@ -21,7 +23,19 @@ class Vaca(threading.Thread):
 
   def run(self):
     while(True):
-      self.avanzar()
+      if(self.posicion == inicioPuente):
+        cowSemaph.acquire()
+        self.avanzar()
+      elif(self.posicion == finPuente):
+          cowSemaph.release()
+          self.avanzar()
+          break
+      else:
+        self.avanzar()
+      
+
+      
+      
 
 vacas = []
 for i in range(5):
@@ -37,6 +51,7 @@ def dibujarPuente():
 
 while(True):
   cls()
+  print('     Marcos Paz El juego')
   print('Apretá Ctrl + C varias veces para salir...')
   print()
   dibujarPuente()
