@@ -3,10 +3,20 @@ import random
 import time
 import threading
 
-inicioPuente = 10
-largoPuente = 20
-finPuente = inicioPuente + largoPuente
-cowSemaph = threading.Semaphore(1)
+print('Apretá Ctrl + C varias veces para salir...')        
+valor = int(input("Cuantas vacas van a cruzar el puente??"))
+
+cowSemaph = threading.Semaphore(valor)
+
+class Puente(threading.Thread):
+  def __init__(self, valorInicio, valorLargo):
+    super().__init__()
+    self.inicio = valorInicio
+    self.largo = valorLargo
+    self.fin = (self.inicio + self.largo)
+  
+  def dibujarPuente(self):
+      print(' ' * self.inicio + '=' * self.largo)
 
 class Vaca(threading.Thread):
   def __init__(self):
@@ -23,21 +33,28 @@ class Vaca(threading.Thread):
 
   def run(self):
     while(True):
-      if(self.posicion == inicioPuente):
-        cowSemaph.acquire()
-        self.avanzar()
-      elif(self.posicion == finPuente):
+      for p in puentes:
+        if(self.posicion == p.inicio):
+          cowSemaph.acquire()
+          self.avanzar()
+        elif(self.posicion == p.finPuente):
           cowSemaph.release()
           self.avanzar()
-          break
-      else:
-        self.avanzar()
+        else:
+          self.avanzar()
+      self.avanzar()
       
 
-      
-      
-
+puentes = []
 vacas = []
+
+puente1 = Puente(10,20)
+puente1.start()
+puente2 = Puente(32,10)
+puente2.start()
+puentes.append(puente1)
+puentes.append(puente2)
+
 for i in range(5):
   v = Vaca()
   vacas.append(v)
@@ -46,16 +63,13 @@ for i in range(5):
 def cls():
   os.system('cls' if os.name=='nt' else 'clear')
 
-def dibujarPuente():
-  print(' ' * inicioPuente + '=' * largoPuente)
 
 while(True):
   cls()
-  print('     Marcos Paz El juego')
-  print('Apretá Ctrl + C varias veces para salir...')
-  print()
-  dibujarPuente()
-  for v in vacas:
-    v.dibujar()
-  dibujarPuente()
+  for p in puentes:
+    p.dibujarPuente()
+    for v in vacas:
+      v.dibujar()
+    p.dibujarPuente()
+    print()
   time.sleep(0.2)
